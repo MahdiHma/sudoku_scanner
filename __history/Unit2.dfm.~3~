@@ -1,0 +1,72 @@
+object Form2: TForm2
+  Left = 0
+  Top = 0
+  AutoSize = True
+  Caption = 
+    '                                                                ' +
+    '                         '#1575#1587#1705#1606#1585' '#1608' '#1581#1604' '#1587#1608#1583#1608#1705#1608
+  ClientHeight = 547
+  ClientWidth = 185
+  Color = clBackground
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PopupMode = pmExplicit
+  PopupParent = Form1.Owner
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Button1: TButton
+    Left = 0
+    Top = 0
+    Width = 185
+    Height = 177
+    Caption = #1581#1604' '#1587#1608#1583#1608#1705#1608
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -40
+    Font.Name = 'System'
+    Font.Style = []
+    Font.Quality = fqAntialiased
+    ParentFont = False
+    TabOrder = 0
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 0
+    Top = 185
+    Width = 185
+    Height = 177
+    Caption = #1662#1575#1705' '#1705#1585#1583#1606
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -40
+    Font.Name = 'System'
+    Font.Style = []
+    Font.Quality = fqAntialiased
+    ParentFont = False
+    TabOrder = 1
+    OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 0
+    Top = 370
+    Width = 185
+    Height = 177
+    Caption = #1605#1606#1608
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -40
+    Font.Name = 'System'
+    Font.Style = []
+    Font.Quality = fqAntialiased
+    ParentFont = False
+    TabOrder = 2
+    OnClick = Button3Click
+  end
+end

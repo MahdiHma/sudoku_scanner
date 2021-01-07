@@ -1,0 +1,184 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+#include <iostream>
+#include <vector>
+#include <fstream>
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+using namespace std;
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+bool mark[2000][2000] = {false};
+bool mark2[2000][2000] = {false};
+bool arr[100][100] = {false};
+int xmin, xmax, ymin, ymax;
+vector < pair < int, int > > point;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void go(int x, int y)
+{
+	if (mark2[x][y]) return;
+	mark2[x][y] = true;
+	point.push_back(make_pair(x, y));
+	if (x < xmin) xmin = x;
+	if (x > xmax) xmax = x;
+	if (y < ymin) ymin = y;
+	if (y > ymax) ymax = y;
+	if (mark[x + 1][y]) go(x + 1, y);
+	if (mark[x][y + 1]) go(x, y + 1);
+	if (x - 1 >= 0 && mark[x - 1][y]) go(x - 1, y);
+	if (y - 1 >= 0 && mark[x][y - 1]) go(x, y - 1);
+}
+//---------------------------------------------------------------------------
+void srch(int x, int y)
+{
+	arr[x][y] = true;
+	if (x + 1 < 100 && !arr[x + 1][y]) srch(x + 1, y);
+	if (y + 1 < 100 && !arr[x][y + 1]) srch(x, y + 1);
+	if (x - 1 >= 0 && !arr[x - 1][y]) srch(x - 1, y);
+	if (y - 1 >= 0 && !arr[x][y - 1]) srch(x, y - 1);
+}
+//---------------------------------------------------------------------------
+bool TForm1::IsEight()
+{
+	for (int i = 0; i < 100; i++)
+		fill(arr[i], arr[i] + 100, 0);
+	for (int i = 0; i < Image2->Width; i++)
+			for (int j = 0; j < Image2->Height; j++)
+				arr[i + 20][j + 20] = (Image2->Canvas->Pixels[i][j] == clBlack);
+	int section = 0;
+	bool check = true;
+	while (check)
+	{
+		check = false;
+		for (int i = 0; i < 100; i++)
+		{
+			for (int j = 0; j < 100; j++)
+				if (!arr[i][j])
+				{
+					srch(i, j);
+					check =  true;
+					break;
+				}
+			if (check)
+				break;
+		}
+		section++;
+	}
+	if (section == 4)
+		return true;
+	return false;
+}
+//---------------------------------------------------------------------------
+int TForm1::Compare()
+{
+	int balance[10] = {0};
+	for (int index = 1; index < 10; index++)
+	{
+		Image3->Picture->LoadFromFile("pics/" + IntToStr(index) + ".bmp");
+		for (int i = 0; i < Image2->Width; i++)
+			for (int j = 0; j < Image2->Height; j++) {
+				bool b1, b2;
+				b1 = Image2->Canvas->Pixels[i][j] == clBlack ? true : false;
+				b2 = Image3->Canvas->Pixels[i][j] == clBlack ? true : false;
+				if (b1 && b2)
+					balance[index]++;
+				else if (!b1 && !b2)
+					balance[index]++;
+				else
+					balance[index]--;
+				int k = b1;
+				int l = b2;
+			}
+	}
+	int number = 1;
+	for (int i = 2; i < 10; i++)
+		if (balance[number] < balance[i]) number = i;
+	if (IsEight())
+		number = 8;
+	ShowMessage(IntToStr(number));
+	return number;
+}
+//---------------------------------------------------------------------------
+void TForm1::Clean()
+{
+	for (int k = 0; k < point.size(); k++)
+	{
+		Image1->Canvas->Pixels[point[k].first][point[k].second] = clWhite;
+		mark[point[k].first][point[k].second] = false;
+	}
+}
+//---------------------------------------------------------------------------
+void TForm1::Process()
+{
+	for (int i = 0; i < 2000; i++)
+		for (int j = 0; j < 2000; j++)
+			if (mark[j][i]) {
+				point.clear();
+				ymin = xmin = 1000;
+				ymax = xmax = -1000;
+				go(j, i);
+				if (point.size() < 20 || xmax - xmin > 60 || ymax - ymin > 60)
+					Clean();
+				else
+				{
+					Image2->Width = xmax - xmin + 1;
+					Image2->Height = ymax - ymin + 1;
+					for (int i = xmin; i <= xmax; i++)
+						for (int j = ymin; j <= ymax; j++) {
+							Image2->Canvas->Pixels[i - xmin][j - ymin] =
+								Image1->Canvas->Pixels[i][j];
+							Image1->Canvas->Pixels[i][j] = clRed;
+						}
+					Image2->Height = 50;
+					Image2->Width = 50;
+					Image2->Picture->Graphic->Height = 50;
+					Image2->Picture->Graphic->Width = 50;
+					Image2->Canvas->StretchDraw(Rect(0, 0, 200, 120), Image2->Picture->Graphic);
+					Compare();
+					for (int i = 0; i < 50; i++)
+						for (int j = 0; j < 50; j++)
+							Image2->Canvas->Pixels[i][j] = clWhite;
+				}
+			}
+}
+//---------------------------------------------------------------------------
+void GetPixel(const TImage * const image, const int x, const int y,
+unsigned char& red, unsigned char& green,unsigned char& blue)
+{
+  const unsigned char * const line
+	= static_cast<unsigned char *>(image->Picture->Bitmap->ScanLine[y]);
+  red =   line[x * 3 + 2];
+  green = line[x * 3 + 1];
+  blue =  line[x * 3 + 0];
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+ //	Image1->Picture->LoadFromFile("sudoku#1.bmp");
+	for (int i = 0; i < Image1->Picture->Height; i++) {
+		for (int j = 0; j < Image1->Picture->Width; j++) {
+			unsigned char red, green, blue;
+			GetPixel(Image1, j, i, red, green, blue);
+			if (red + green + blue < 400)
+				Image1->Canvas->Pixels[j][i] = clBlack,
+				mark[j][i] = true, mark2[j][i] = false;
+			else
+				Image1->Canvas->Pixels[j][i] = clWhite
+				, mark[j][i] = false;
+		}
+	}
+	Process();
+}
+//---------------------------------------------------------------------------
+
+
